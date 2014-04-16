@@ -160,7 +160,7 @@ public class ArrayList extends AbstractList<Integer> {
 
 		System.out.println(list);
 		System.out.println("Is empty: " + list.isEmpty());
-		Iterator<Integer> it = list.iterator();
+		ListIterator<Integer> it = list.listIterator();
 		it.next();
 		System.out.println("Remove this element:" + it.next());
 		it.remove();
