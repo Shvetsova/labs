@@ -3,29 +3,58 @@ package main;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 public class ArrayList extends AbstractList<Integer> {
-	private class MyItr implements Iterator<Integer>{
-		int tail = size;
-		int currentIndex = -1;
-		
-		
-		@Override
-		public boolean hasNext() {
-			
-			return currentIndex < tail - 1;
-		}
+	private class MyItr implements ListIterator<Integer>{
+        int tail = size;
+        int currentIndex = -1;
 
-		@Override
-		public Integer next() {
-			
-			return array[++currentIndex];
-		}
 
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
+        @Override
+        public boolean hasNext() {
+
+        return currentIndex < tail - 1;
+         }
+
+        @Override
+        public Integer next() {
+
+        return array[++currentIndex];
+        }
+
+        @Override
+        public void remove() {
+        throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(Integer e){
+        throw new UnsupportedOperationException();
+        }
+        @Override
+        public void set(Integer e){
+        throw new UnsupportedOperationException();
+        }
+        @Override
+        public boolean hasPrevious() {
+
+        return currentIndex > 0;
+        }
+        @Override
+        public Integer previous() {
+
+        return array[--currentIndex];
+        }
+        @Override
+        public int nextIndex() {
+        return ++currentIndex;
+        }
+        @Override
+        public int previousIndex() {
+        return --currentIndex;
+        }
+
 		
 	}
 	
@@ -87,9 +116,13 @@ public class ArrayList extends AbstractList<Integer> {
 	}
 	
 	@Override
-	public Iterator<Integer> iterator(){
-		return new MyItr();	
-	}
+        public Iterator<Integer> iterator() {
+        return listIterator();
+        }
+        @Override
+        public ListIterator<Integer> listIterator(){
+        return new MyItr();
+        }
 	
 	@Override
 	public int size() {
