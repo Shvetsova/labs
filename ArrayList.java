@@ -112,8 +112,9 @@ public class ArrayList extends AbstractList<Integer> {
 		for (Integer value : this) {
 			sb.append(value + " ");
 		}
-		
-		return sb.toString();
+		int i = sb.lastIndexOf(" ");
+		sb.deleteCharAt(i);
+		return sb.toString(); 
 	}
 	public static void main(String[] args) {
 		ArrayList list = new ArrayList(10);
