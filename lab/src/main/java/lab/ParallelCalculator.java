@@ -3,9 +3,11 @@ package lab;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class ParallelCalculator implements IterativeParallelism {
     @Override
@@ -93,9 +95,9 @@ public class ParallelCalculator implements IterativeParallelism {
     public <T> List<T> filter(int threads, List<T> list, Predicate<T> predicate) {
         if (threads < 1 || predicate == null) throw new IllegalArgumentException();
 
-        BiFunction<List<Boolean>, T, List<Boolean>> bf = (arg1, arg2) -> {
-            arg1.add(predicate.test(arg2));
-            return arg1;
+        BiFunction<List<Boolean>, T, List<Boolean>> bf = (listOfResult, arg2) -> {
+            listOfResult.add(predicate.test(arg2));
+            return listOfResult;
         };
 
         final List<List<Boolean>> results = new ArrayList<>(threads);
@@ -191,10 +193,18 @@ public class ParallelCalculator implements IterativeParallelism {
         public void run() {
             R result = startValue;
             for (int i = startPosition; i <= endPosition; i++){
+                //TODO remove this on prod
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 result = bf.apply(result, data.get(i));
             }
+
             results.set(number, result);
         }
     }
 
 }
+
