@@ -3,9 +3,7 @@ package lab;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -13,64 +11,82 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 public class IterativeParallelismTest {
-    private static int THREADS_NUMBER = 4;
-    private static int LIST_SIZE = 1000;
+    private static int THREADS_NUMBER = 3;
+    private static int LIST_SIZE = 300;
     private List<Integer> testData;
+    IterativeParallelism iterativeParallelism = new ParallelCalculator();
 
     @Before
     public void setUp() throws Exception {
-        Random random = new Random();
-        testData = random.ints(LIST_SIZE, 4, 10).boxed().collect(Collectors.toList());
+        int[] temp = new int[LIST_SIZE];
+        for (int i =0; i < THREADS_NUMBER; i++){
+            temp[i * LIST_SIZE/ THREADS_NUMBER ] = 1;
+            temp[(i+1) * LIST_SIZE/ THREADS_NUMBER -1] = -1;
+        }
+
+        testData = Arrays.stream(temp).boxed().collect(Collectors.toList());
+//        testData.forEach(System.out::print);
     }
 
     @Test
     public void testMinimum() throws Exception {
-        Integer expected = Integer.MIN_VALUE;
-        testData.set(LIST_SIZE / 3, expected);
-        IterativeParallelism ip = new ParallelCalculator();
-        assertEquals(expected, ip.minimum(THREADS_NUMBER, testData, Comparator.<Integer>naturalOrder()));
+        Integer expected = -1;
+        Long startTime = System.currentTimeMillis();
+
+        assertEquals(expected, iterativeParallelism.minimum(THREADS_NUMBER, testData, Comparator.<Integer>naturalOrder()));
+        Long endTime = System.currentTimeMillis();
+        System.out.println("Time exec min= " + (endTime - startTime) );
     }
 
     @Test
     public void testMaximum() throws Exception {
-        Integer expected = Integer.MAX_VALUE;
-        testData.set(LIST_SIZE / 3, expected);
-        IterativeParallelism ip = new ParallelCalculator();
-        assertEquals(expected, ip.maximum(THREADS_NUMBER, testData, Comparator.<Integer>naturalOrder()));
+        Integer expected = 1;
+        Long startTime = System.currentTimeMillis();
+
+        assertEquals(expected, iterativeParallelism.maximum(THREADS_NUMBER, testData, Comparator.<Integer>naturalOrder()));
+        Long endTime = System.currentTimeMillis();
+        System.out.println("Time exec max = " + (endTime - startTime) );
     }
 
     @Test
     public void testAll() throws Exception {
-        IterativeParallelism ip = new ParallelCalculator();
-        Predicate predicate = arg -> arg instanceof Number;
-        assertEquals(true, ip.all(THREADS_NUMBER, testData, predicate));
+        Long startTime = System.currentTimeMillis();
+
+
+        assertEquals(false, iterativeParallelism.all(THREADS_NUMBER, testData, arg -> arg > 0));
+        Long endTime = System.currentTimeMillis();
+        System.out.println("Time exec all = " + (endTime - startTime) );
     }
 
     @Test
     public void testAny() throws Exception {
-        Integer maxValue = Integer.MAX_VALUE;
-        testData.set(LIST_SIZE / 3, maxValue);
-        IterativeParallelism ip = new ParallelCalculator();
-        Predicate<Integer> isMaxValue = arg -> maxValue.equals(arg);
-        assertEquals(true, ip.any(THREADS_NUMBER, testData, isMaxValue));
-        Integer unexistedValue = 7777;
-        Predicate<Integer> isUnexistedValue = arg -> unexistedValue.equals(arg);
-        assertEquals(false, ip.any(THREADS_NUMBER, testData, isUnexistedValue));
+        Long startTime = System.currentTimeMillis();
+        assertEquals(true, iterativeParallelism.any(THREADS_NUMBER, testData, arg -> arg.equals(0)));
+//        assertEquals(false, iterativeParallelism.any(THREADS_NUMBER, testData, arg -> arg.equals(15)));
+        Long endTime = System.currentTimeMillis();
+        System.out.println("Time exec any = " + (endTime - startTime) );
+
     }
 
     @Test
     public void testFilter() throws Exception {
-        IterativeParallelism ip = new ParallelCalculator();
-        Predicate<Integer> predicate = arg -> arg.equals(5) || arg.equals(6);
+        Long startTime = System.currentTimeMillis();
+
+        Predicate<Integer> predicate = arg -> arg < 0;
         List<Integer> expected = testData.stream().filter(predicate).collect(Collectors.toList());
-        assertEquals(expected, ip.filter(THREADS_NUMBER, testData, predicate));
+        assertEquals(expected, iterativeParallelism.filter(THREADS_NUMBER, testData, predicate));
+        Long endTime = System.currentTimeMillis();
+        System.out.println("Time exec filter = " + (endTime - startTime) );
     }
 
     @Test
     public void testMap() throws Exception {
-        IterativeParallelism ip = new ParallelCalculator();
-        Function<Integer, String> mapToString = arg -> arg.toString();
-        List<String> expected = testData.stream().map(mapToString).collect(Collectors.toList());
-        assertEquals(expected, ip.map(THREADS_NUMBER, testData, mapToString));
+        Long startTime = System.currentTimeMillis();
+
+        Function<Integer, Integer> mapToString = i -> i + 10;
+        List<Integer> expected = testData.stream().map(i -> i + 10).collect(Collectors.toList());
+        assertEquals(expected, iterativeParallelism.map(THREADS_NUMBER, testData, mapToString));
+        Long endTime = System.currentTimeMillis();
+        System.out.println("Time exec map= " + (endTime - startTime) );
     }
 }
