@@ -1,0 +1,15 @@
+﻿Сборка начата 20.01.2016 2:18:58.
+     1>Проект "C:\Users\Home\Documents\Visual Studio 2015\Projects\l2\l2.vcxproj" в узле 2 (целевые объекты Build).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files (x86)\Microsoft SDKs\MPI\Include" /ZI /nologo /W3 /WX- /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt l2.cpp
+         l2.cpp
+     1>c:\users\home\documents\visual studio 2015\projects\l2\l2.cpp(84): warning C4715: Converge: значение возвращается не при всех путях выполнения
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Home\Documents\Visual Studio 2015\Projects\l2\x64\Debug\l2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64" msmpi.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Home\Documents\Visual Studio 2015\Projects\l2\x64\Debug\l2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Home\Documents\Visual Studio 2015\Projects\l2\x64\Debug\l2.lib" /MACHINE:X64 x64\Debug\l2.obj
+         x64\Debug\stdafx.obj
+         l2.vcxproj -> C:\Users\Home\Documents\Visual Studio 2015\Projects\l2\x64\Debug\l2.exe
+     1>Сборка проекта "C:\Users\Home\Documents\Visual Studio 2015\Projects\l2\l2.vcxproj" завершена (целевые объекты Build).
+
+Сборка успешно завершена.
+
+Затраченное время: 00:00:02.95
