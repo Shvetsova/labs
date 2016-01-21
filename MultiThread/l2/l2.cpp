@@ -1,4 +1,4 @@
-// l2.cpp: определяет точку входа для консольного приложения.
+// l2.cpp: РѕРїСЂРµРґРµР»СЏРµС‚ С‚РѕС‡РєСѓ РІС…РѕРґР° РґР»СЏ РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РїСЂРёР»РѕР¶РµРЅРёСЏ.
 //
 
 #include <stdio.h>  
@@ -21,62 +21,62 @@
 
 void Jacobi(int M, double** A, double* F, double* X, double eps) {
 	int rank, size;
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);// узнаем индетификатор процесса
-	MPI_Comm_size(MPI_COMM_WORLD, &size);// узнаем количество процессов
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);// СѓР·РЅР°РµРј РёРЅРґРµС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС†РµСЃСЃР°
+	MPI_Comm_size(MPI_COMM_WORLD, &size);// СѓР·РЅР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС†РµСЃСЃРѕРІ
 
-	double* TempX = (double *)calloc(sizeof(double), M); //массив промежуточных результатов
-	double norm = 1;// передается из всех процессов максимальная TempNorm
-	double TempNorm = 1;// рассчитывается в каждом процессе
+	double* TempX = (double *)calloc(sizeof(double), M); //РјР°СЃСЃРёРІ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹С… СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
+	double norm = 1;// РїРµСЂРµРґР°РµС‚СЃСЏ РёР· РІСЃРµС… РїСЂРѕС†РµСЃСЃРѕРІ РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ TempNorm
+	double TempNorm = 1;// СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РІ РєР°Р¶РґРѕРј РїСЂРѕС†РµСЃСЃРµ
 
 	double mtime = 0;
 	if (rank == 0) {
-		mtime = MPI_Wtime();// получаем текущее значение времени для первого процесса
+		mtime = MPI_Wtime();// РїРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ РІСЂРµРјРµРЅРё РґР»СЏ РїРµСЂРІРѕРіРѕ РїСЂРѕС†РµСЃСЃР°
 	}
 
 	do {
-		MPI_Bcast(X, M, MPI_DOUBLE, 0, MPI_COMM_WORLD); // рассылаем всем процессам значение текущего приближения
-		for (int i = rank; i < M; i += size) {// каждый процесс считает свою часть цикла
+		MPI_Bcast(X, M, MPI_DOUBLE, 0, MPI_COMM_WORLD); // СЂР°СЃСЃС‹Р»Р°РµРј РІСЃРµРј РїСЂРѕС†РµСЃСЃР°Рј Р·РЅР°С‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ РїСЂРёР±Р»РёР¶РµРЅРёСЏ
+		for (int i = rank; i < M; i += size) {// РєР°Р¶РґС‹Р№ РїСЂРѕС†РµСЃСЃ СЃС‡РёС‚Р°РµС‚ СЃРІРѕСЋ С‡Р°СЃС‚СЊ С†РёРєР»Р°
 			TempX[i] = F[i];
 			for (int g = 0; g < M; g++) {
 				if (i != g)
 					TempX[i] -= A[i][g] * X[g];
 			}
 			TempX[i] /= A[i][i];
-			//рассчет промежуточного решения
+			//СЂР°СЃСЃС‡РµС‚ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅРѕРіРѕ СЂРµС€РµРЅРёСЏ
 		}
-		MPI_Barrier(MPI_COMM_WORLD);// ждем пока процессы дойдут до этой точки
-		TempNorm = abs(X[0] - TempX[0]); // считаем TempNorm по модулю
-		for (int h = rank; h < M; h += size) {// каждый процесс бежит со своим шагом, ищем максимальный TempNorm
+		MPI_Barrier(MPI_COMM_WORLD);// Р¶РґРµРј РїРѕРєР° РїСЂРѕС†РµСЃСЃС‹ РґРѕР№РґСѓС‚ РґРѕ СЌС‚РѕР№ С‚РѕС‡РєРё
+		TempNorm = abs(X[0] - TempX[0]); // СЃС‡РёС‚Р°РµРј TempNorm РїРѕ РјРѕРґСѓР»СЋ
+		for (int h = rank; h < M; h += size) {// РєР°Р¶РґС‹Р№ РїСЂРѕС†РµСЃСЃ Р±РµР¶РёС‚ СЃРѕ СЃРІРѕРёРј С€Р°РіРѕРј, РёС‰РµРј РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ TempNorm
 			if (abs(X[h] - TempX[h]) > TempNorm)
 				TempNorm = abs(X[h] - TempX[h]);
 		}
-		MPI_Barrier(MPI_COMM_WORLD);// ждем пока процессы дойдут до этой точки
-		MPI_Reduce(&TempNorm, &norm, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);// шлем главному процессу максимальную TempNorm и записываем в norm
-		MPI_Reduce(TempX, X, M, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);// собираем из всех промежуточных приближений ответ
+		MPI_Barrier(MPI_COMM_WORLD);// Р¶РґРµРј РїРѕРєР° РїСЂРѕС†РµСЃСЃС‹ РґРѕР№РґСѓС‚ РґРѕ СЌС‚РѕР№ С‚РѕС‡РєРё
+		MPI_Allreduce(&TempNorm, &norm, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);// С€Р»РµРј РіР»Р°РІРЅРѕРјСѓ РїСЂРѕС†РµСЃСЃСѓ РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ TempNorm Рё Р·Р°РїРёСЃС‹РІР°РµРј РІ norm
+		MPI_Reduce(TempX, X, M, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);// СЃРѕР±РёСЂР°РµРј РёР· РІСЃРµС… РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹С… РїСЂРёР±Р»РёР¶РµРЅРёР№ РѕС‚РІРµС‚
 
-	} while (norm > eps);//пока норм больше точности
-	free(TempX);// освободаем tempx
+	} while (norm > eps);//РїРѕРєР° РЅРѕСЂРј Р±РѕР»СЊС€Рµ С‚РѕС‡РЅРѕСЃС‚Рё
+	free(TempX);// РѕСЃРІРѕР±РѕРґР°РµРј tempx
 
-	if (rank == 0) {// если главный процесс
+	if (rank == 0) {// РµСЃР»Рё РіР»Р°РІРЅС‹Р№ РїСЂРѕС†РµСЃСЃ
 		mtime = MPI_Wtime() - mtime;
-		std::cout << "calculation time : " << mtime << std::endl; // выводим значения потраченного времени
+		std::cout << "calculation time : " << mtime << std::endl; // РІС‹РІРѕРґРёРј Р·РЅР°С‡РµРЅРёСЏ РїРѕС‚СЂР°С‡РµРЅРЅРѕРіРѕ РІСЂРµРјРµРЅРё
 	}
 
 }
 
-int Converge(int M, double** A) { // рассчет сходимсти
+int Converge(int M, double** A) { // СЂР°СЃСЃС‡РµС‚ СЃС…РѕРґРёРјСЃС‚Рё
 	int rank, size;
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank); // узнаем индетификатор процесса
-	MPI_Comm_size(MPI_COMM_WORLD, &size);// узнаем количество процессов
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank); // СѓР·РЅР°РµРј РёРЅРґРµС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС†РµСЃСЃР°
+	MPI_Comm_size(MPI_COMM_WORLD, &size);// СѓР·РЅР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС†РµСЃСЃРѕРІ
 
-	for (int i = rank; i < M; i += size) {    // бежим с шагом зависящим от индетификатора процесса и количества процессов
+	for (int i = rank; i < M; i += size) {    // Р±РµР¶РёРј СЃ С€Р°РіРѕРј Р·Р°РІРёСЃСЏС‰РёРј РѕС‚ РёРЅРґРµС‚РёС„РёРєР°С‚РѕСЂР° РїСЂРѕС†РµСЃСЃР° Рё РєРѕР»РёС‡РµСЃС‚РІР° РїСЂРѕС†РµСЃСЃРѕРІ
 		double sum = 0.0;
 		for (int j = 0; j < M; j++) {
 			if (i != j) {
-				sum += abs(A[i][j]); // сумма модулей недиагональных элементов
+				sum += abs(A[i][j]); // СЃСѓРјРјР° РјРѕРґСѓР»РµР№ РЅРµРґРёР°РіРѕРЅР°Р»СЊРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ
 			}
 		}
-		if (abs(A[i][i]) < sum) {// если сумма модулей недиагональных элементов больше модуля диагонального элемента
+		if (abs(A[i][i]) < sum) {// РµСЃР»Рё СЃСѓРјРјР° РјРѕРґСѓР»РµР№ РЅРµРґРёР°РіРѕРЅР°Р»СЊРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ Р±РѕР»СЊС€Рµ РјРѕРґСѓР»СЏ РґРёР°РіРѕРЅР°Р»СЊРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 			throw std::logic_error("not converge");
 		}
 	}
@@ -85,8 +85,8 @@ int Converge(int M, double** A) { // рассчет сходимсти
 int main(int argc, char **argv) {
 
 	int rank;
-	MPI_Init(&argc, &argv); //инициализация mpi
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);// получение индетефикатора процесса
+	MPI_Init(&argc, &argv); //РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ mpi
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);// РїРѕР»СѓС‡РµРЅРёРµ РёРЅРґРµС‚РµС„РёРєР°С‚РѕСЂР° РїСЂРѕС†РµСЃСЃР°
 
 										 /*
 										 *  argv[1] - input file coefficient matrix
@@ -99,9 +99,9 @@ int main(int argc, char **argv) {
 		EXIT_APP(rank, " incorrect number of arguments ");
 	}
 
-	double eps = atof(argv[3]); // погрешность 
+	double eps = atof(argv[3]); // РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ 
 
-	if (eps <= 0 || eps >= 1) {// если не от 0 до 1
+	if (eps <= 0 || eps >= 1) {// РµСЃР»Рё РЅРµ РѕС‚ 0 РґРѕ 1
 		EXIT_APP(rank, " incorrect eps ");
 	}
 
@@ -109,15 +109,15 @@ int main(int argc, char **argv) {
 	std::ifstream fapprox(argv[2]);
 	std::ofstream fout(argv[4]);
 
-	if (!fmatrix.is_open() || !fapprox.is_open() || !fout.is_open()) {// если не открылись файлы
+	if (!fmatrix.is_open() || !fapprox.is_open() || !fout.is_open()) {// РµСЃР»Рё РЅРµ РѕС‚РєСЂС‹Р»РёСЃСЊ С„Р°Р№Р»С‹
 		EXIT_APP(rank, " could not open file ");
 	}
 
 	// --> matrix file read
-	int M;// количество строк
-	int N;//  количество столбцов
-	double** A;//матрица коэффициентов
-	double* F;//свободные члены
+	int M;// РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє
+	int N;//  РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚РѕР»Р±С†РѕРІ
+	double** A;//РјР°С‚СЂРёС†Р° РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ
+	double* F;//СЃРІРѕР±РѕРґРЅС‹Рµ С‡Р»РµРЅС‹
 	
 
 	std::string line;
@@ -126,37 +126,37 @@ int main(int argc, char **argv) {
 	if (!(iss >> M >> N)) {
 		EXIT_APP(rank, " matrix file could not get M and N ");
 	}
-	if (N != M + 1) { // если столбцов не на один больше строк
+	if (N != M + 1) { // РµСЃР»Рё СЃС‚РѕР»Р±С†РѕРІ РЅРµ РЅР° РѕРґРёРЅ Р±РѕР»СЊС€Рµ СЃС‚СЂРѕРє
 		EXIT_APP(rank, " matrix incorrect N != M + 1 ");
 	}
 
-	A = (double**)malloc(sizeof(double*) * M);// выделение памяти под указатели на массивы
-	F = (double*)malloc(sizeof(double) * M);// выделение памяти под массив
+	A = (double**)malloc(sizeof(double*) * M);// РІС‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РїРѕРґ СѓРєР°Р·Р°С‚РµР»Рё РЅР° РјР°СЃСЃРёРІС‹
+	F = (double*)malloc(sizeof(double) * M);// РІС‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РїРѕРґ РјР°СЃСЃРёРІ
 
 	for (int i = 0; i < M; i++) {
-		line = "";// задаем строку пустой
-		std::getline(fmatrix, line);// читаем из входного потока с матрицей
-		if (line.size() < 1) {// если строка меньше 1 символа
+		line = "";// Р·Р°РґР°РµРј СЃС‚СЂРѕРєСѓ РїСѓСЃС‚РѕР№
+		std::getline(fmatrix, line);// С‡РёС‚Р°РµРј РёР· РІС…РѕРґРЅРѕРіРѕ РїРѕС‚РѕРєР° СЃ РјР°С‚СЂРёС†РµР№
+		if (line.size() < 1) {// РµСЃР»Рё СЃС‚СЂРѕРєР° РјРµРЅСЊС€Рµ 1 СЃРёРјРІРѕР»Р°
 			EXIT_APP(rank, " matrix line incorrect ");
 		}
-		A[i] = (double*)malloc(sizeof(double) * M);// выделяем память под массив - строку
+		A[i] = (double*)malloc(sizeof(double) * M);// РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РїРѕРґ РјР°СЃСЃРёРІ - СЃС‚СЂРѕРєСѓ
 
 		std::istringstream issl(line);
-		for (int j = 0; j < M; j++) {// бежим по количеству элементов в столбце
-			if (!(issl >> A[i][j])) {// если нет элемента в столбце 
+		for (int j = 0; j < M; j++) {// Р±РµР¶РёРј РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ СЌР»РµРјРµРЅС‚РѕРІ РІ СЃС‚РѕР»Р±С†Рµ
+			if (!(issl >> A[i][j])) {// РµСЃР»Рё РЅРµС‚ СЌР»РµРјРµРЅС‚Р° РІ СЃС‚РѕР»Р±С†Рµ 
 				EXIT_APP(rank, " matrix line incorrect ");
 			}
 		}
 
-		if (!(issl >> F[i])) {// последний элемент в строке записывается в f
+		if (!(issl >> F[i])) {// РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚ РІ СЃС‚СЂРѕРєРµ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РІ f
 			EXIT_APP(rank, " matrix line incorrect ");
 		}
 	}
 	// <-- matrix file read
 
 	// --> approximation
-	double* X;// столбец приближений
-	int aM;// количество строк
+	double* X;// СЃС‚РѕР»Р±РµС† РїСЂРёР±Р»РёР¶РµРЅРёР№
+	int aM;// РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє
 	line = "";
 	std::getline(fapprox, line);
 	std::istringstream aiss(line);
@@ -164,11 +164,11 @@ int main(int argc, char **argv) {
 	if (!(aiss >> aM)) {
 		EXIT_APP(rank, " approximation file could not get M ");
 	}
-	if (M != aM) {// если количество строк в матрице не равно количеству строк в приближении
+	if (M != aM) {// РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ РјР°С‚СЂРёС†Рµ РЅРµ СЂР°РІРЅРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ СЃС‚СЂРѕРє РІ РїСЂРёР±Р»РёР¶РµРЅРёРё
 		EXIT_APP(rank, " approximation file M does not match matrix M ");
 	}
 
-	X = (double*)calloc(sizeof(double), M);// выделяем память под массив приближений
+	X = (double*)calloc(sizeof(double), M);// РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РїРѕРґ РјР°СЃСЃРёРІ РїСЂРёР±Р»РёР¶РµРЅРёР№
 
 	for (int i = 0; i < M; i++) {//
 		line = "";
@@ -183,11 +183,11 @@ int main(int argc, char **argv) {
 	}
 	// <-- approximation
 
-	MPI_Barrier(MPI_COMM_WORLD); //  дождаться пока все процессы дойдут до этой точки
+	MPI_Barrier(MPI_COMM_WORLD); //  РґРѕР¶РґР°С‚СЊСЃСЏ РїРѕРєР° РІСЃРµ РїСЂРѕС†РµСЃСЃС‹ РґРѕР№РґСѓС‚ РґРѕ СЌС‚РѕР№ С‚РѕС‡РєРё
 	try {
 
-		Converge(M, A);// проверка сходимости
-		Jacobi(M, A, F, X, eps); // вычисление слау
+		Converge(M, A);// РїСЂРѕРІРµСЂРєР° СЃС…РѕРґРёРјРѕСЃС‚Рё
+		Jacobi(M, A, F, X, eps); // РІС‹С‡РёСЃР»РµРЅРёРµ СЃР»Р°Сѓ
 	
 	}
 	catch (std::logic_error e) {
